@@ -64,9 +64,9 @@ def calculate_pv_wlb(
 
 def _get_rofrs_damages(path, sheet_name):
     df1 = pd.read_excel(path, sheet_name=sheet_name, usecols='D:H', skiprows=1, nrows=4)
-    df1['ID'] = range(3)
+    df1['ID'] = range(len(df1))
     df2 = pd.read_excel(path, sheet_name=sheet_name, usecols='D:H', skiprows=7, nrows=4)
-    df2['ID'] = range(3,6)
+    df2['ID'] = range(3, 3 + len(df2))
     df3 = pd.read_excel(path, sheet_name=sheet_name, usecols='D:H', skiprows=13, nrows=4)
     df3['ID'] = range(6,9)
     df = pd.concat([df1, df2, df3], axis=0)
