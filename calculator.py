@@ -4,7 +4,6 @@ import itertools
 import numpy as np
 import pandas as pd
 
-
 def calculate_pv_wlb(
     household_risk_changes,
     rofrs_damages_path,
@@ -68,7 +67,7 @@ def _get_rofrs_damages(path, sheet_name):
     df2 = pd.read_excel(path, sheet_name=sheet_name, usecols='D:H', skiprows=7, nrows=4)
     df2['ID'] = range(3, 3 + len(df2))
     df3 = pd.read_excel(path, sheet_name=sheet_name, usecols='D:H', skiprows=13, nrows=4)
-    df3['ID'] = range(6,9)
+    df3['ID'] = range(6, 6 + len(df3))
     df = pd.concat([df1, df2, df3], axis=0)
     df = df.iloc[:, :-1].sum(axis=0).to_numpy()
     return df
