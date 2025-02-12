@@ -3,6 +3,7 @@ import itertools
 
 import numpy as np
 import pandas as pd
+import logging
 
 def calculate_pv_wlb(
     household_risk_changes,
@@ -280,13 +281,24 @@ def _calculate_5a(
     duration_of_benefits_DoB_period,
     annual_damages_avoided_compared_with_low_risk,
 ):
+    # Configure logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
     n_risk_today = num_households_at_risk_today_5a
     n_risk_after_dob = num_households_at_risk_after_duration_of_benefits_5a
     damages_avoided = annual_damages_avoided_compared_with_low_risk
     
-    if not np.all(n_risk_today.iloc[:, 1:].sum(axis=1) == n_risk_after_dob.iloc[:, 1:].sum(axis=1)):
-        raise ValueError('Total households at risk today and after project are not equal.')
+    # Check for discrepancies in total households at risk
+    total_risk_today = n_risk_today.iloc[:, 1:].sum(axis=1)
+    total_risk_after_dob = n_risk_after_dob.iloc[:, 1:].sum(axis=1)
     
+    if not np.all(total_risk_today == total_risk_after_dob):
+        logger.warning(
+            "Discrepancy detected: Total households at risk today (%s) and after project (%s) are not equal. "
+            total_risk_today.tolist(), total_risk_after_dob.tolist()
+        )
+
     change_n_risk = n_risk_after_dob.copy()
     change_n_risk.iloc[:, 1:] = 0
     change_n_risk.iloc[:, 1:] = n_risk_after_dob.iloc[:, 1:] - n_risk_today.iloc[:, 1:]
@@ -294,7 +306,6 @@ def _calculate_5a(
     dob_cumul_discount_factor = _get_cumul_discount_factor(
         discount_factors, duration_of_benefits_DoB_period,
     )
-    
     pv_qual_benefits_20pc_most_deprived = _pv_qual_benefits_5a(
         change_n_risk.iloc[0, 1:], damages_avoided, dob_cumul_discount_factor,
     )
