@@ -295,7 +295,7 @@ def _calculate_5a(
     
     if not np.all(total_risk_today == total_risk_after_dob):
         logger.warning(
-            "Discrepancy detected: Total households at risk today (%s) and after project (%s) are not equal. "
+            "Discrepancy detected: Total households at risk today (%s) and after project (%s) are not equal.",
             total_risk_today.tolist(), total_risk_after_dob.tolist()
         )
 
