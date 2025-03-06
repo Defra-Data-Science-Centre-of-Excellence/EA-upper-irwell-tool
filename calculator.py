@@ -3,14 +3,15 @@ import itertools
 
 import numpy as np
 import pandas as pd
-import logging
+
+data_path = "/dbfs/mnt/lab/unrestricted/irwell_data"
 
 def calculate_pv_wlb(
     household_risk_changes,
     rofrs_damages_path,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path = "/dbfs/mnt/lab/unrestricted/irwell_data/longterm_standard_discount_factor.csv",
+    discount_factors_path=f"{data_path}/longterm_standard_discount_factor.csv",
     rofrs_damages_sheet_name='RoFRS Damages',
 ):
     """
@@ -66,9 +67,9 @@ def _get_rofrs_damages(path, sheet_name):
     df1 = pd.read_excel(path, sheet_name=sheet_name, usecols='D:H', skiprows=1, nrows=4)
     df1['ID'] = range(3)
     df2 = pd.read_excel(path, sheet_name=sheet_name, usecols='D:H', skiprows=7, nrows=4)
-    df2['ID'] = range(3, 6)
+    df2['ID'] = range(3,6)
     df3 = pd.read_excel(path, sheet_name=sheet_name, usecols='D:H', skiprows=13, nrows=4)
-    df3['ID'] = range(6, 9)
+    df3['ID'] = range(6,9)
     df = pd.concat([df1, df2, df3], axis=0)
     df = df.iloc[:, :-1].sum(axis=0).to_numpy()
     return df
@@ -110,7 +111,7 @@ def calculate_gia(
     
     # Section 5A
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path = "/dbfs/mnt/lab/unrestricted/irwell_data/longterm_standard_discount_factor.csv",
+    discount_factors_path=f"{data_path}/longterm_standard_discount_factor.csv",
     
     # Section 5B
     year_ready_for_service=2028,  # TODO: Check default
@@ -198,7 +199,7 @@ def calculate_gia(
     
     # Sections 3 & 1 - benefit-cost ratio
     pv_WLC_over_duration_of_benefits = pv_costs_for_approval + pv_future_costs  # E33: costs
-    project_benefit_cost_ratio = pv_WLB_DoB_OM1A / pv_WLC_over_duration_of_benefits  # R8
+    project_benefit_cost_ratio = np.around(pv_WLB_DoB_OM1A / pv_WLC_over_duration_of_benefits, 2)  # R8
     
     # Section 5A
     pv_qual_benefits_20pc_most_deprived_5a, \
@@ -246,14 +247,14 @@ def calculate_gia(
     else:
         if project_benefit_cost_ratio >= 1:
             if project_stage in ['Pre-SOC', 'SOC', 'Change (before OBC)']:
-                pv_max_eligible_fcerm_gia = total_eligible_fcerm_gia
+                pv_max_eligible_fcerm_gia = np.around(total_eligible_fcerm_gia, 2)
             else:
                 raise ValueError(f'Economic summary required for {project_stage}')
-        else:
-            print(
-                f'Low benefit-cost ratio ({project_benefit_cost_ratio}): if higher then PV'
-                f'max eligible FCERM GIA could be: {total_eligible_fcerm_gia}'
-            )
+        #else:
+            #print(
+                #f'Low benefit-cost ratio ({project_benefit_cost_ratio}): if higher then PV'
+                #f'max eligible FCERM GIA could be: {np.around(total_eligible_fcerm_gia, 2)}'
+            #)
     
     return project_benefit_cost_ratio, pv_max_eligible_fcerm_gia
 
@@ -281,24 +282,13 @@ def _calculate_5a(
     duration_of_benefits_DoB_period,
     annual_damages_avoided_compared_with_low_risk,
 ):
-    # Configure logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger(__name__)
-
     n_risk_today = num_households_at_risk_today_5a
     n_risk_after_dob = num_households_at_risk_after_duration_of_benefits_5a
     damages_avoided = annual_damages_avoided_compared_with_low_risk
     
-    # Check for discrepancies in total households at risk
-    total_risk_today = n_risk_today.iloc[:, 1:].sum(axis=1)
-    total_risk_after_dob = n_risk_after_dob.iloc[:, 1:].sum(axis=1)
+    if not np.all(n_risk_today.iloc[:, 1:].sum(axis=1) == n_risk_after_dob.iloc[:, 1:].sum(axis=1)):
+        raise ValueError('Total households at risk today and after project are not equal.')
     
-    if not np.all(total_risk_today == total_risk_after_dob):
-        logger.warning(
-            "Discrepancy detected: Total households at risk today (%s) and after project (%s) are not equal.",
-            total_risk_today.tolist(), total_risk_after_dob.tolist()
-        )
-
     change_n_risk = n_risk_after_dob.copy()
     change_n_risk.iloc[:, 1:] = 0
     change_n_risk.iloc[:, 1:] = n_risk_after_dob.iloc[:, 1:] - n_risk_today.iloc[:, 1:]
@@ -306,6 +296,7 @@ def _calculate_5a(
     dob_cumul_discount_factor = _get_cumul_discount_factor(
         discount_factors, duration_of_benefits_DoB_period,
     )
+    
     pv_qual_benefits_20pc_most_deprived = _pv_qual_benefits_5a(
         change_n_risk.iloc[0, 1:], damages_avoided, dob_cumul_discount_factor,
     )
@@ -461,7 +452,7 @@ def calculate_pv_wlb__interim(
     num_households_at_risk_after_duration_of_benefits_5a,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path = "/dbfs/mnt/lab/unrestricted/irwell_data/longterm_standard_discount_factor.csv",
+    discount_factors_path=f"{data_path}/longterm_standard_discount_factor.csv"
 ):
     """
     Calculate pv whole life benefits (WLB).
