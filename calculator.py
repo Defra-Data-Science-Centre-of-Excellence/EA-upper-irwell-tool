@@ -4,14 +4,19 @@ import itertools
 import numpy as np
 import pandas as pd
 
-data_path = "/dbfs/mnt/lab/unrestricted/irwell_data"
+input_data_path = None
+
+def initialise(data_path):
+    global input_data_path
+    input_data_path = data_path
+
 
 def calculate_pv_wlb(
     household_risk_changes,
     rofrs_damages_path,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path=f"{data_path}/longterm_standard_discount_factor.csv",
+    discount_factors_path=f"{input_data_path}/longterm_standard_discount_factor.csv",
     rofrs_damages_sheet_name='RoFRS Damages',
 ):
     """
@@ -111,7 +116,7 @@ def calculate_gia(
     
     # Section 5A
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path=f"{data_path}/longterm_standard_discount_factor.csv",
+    discount_factors_path=f"{input_data_path}/longterm_standard_discount_factor.csv",
     
     # Section 5B
     year_ready_for_service=2028,  # TODO: Check default
@@ -452,7 +457,7 @@ def calculate_pv_wlb__interim(
     num_households_at_risk_after_duration_of_benefits_5a,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path=f"{data_path}/longterm_standard_discount_factor.csv"
+    discount_factors_path=f"{input_data_path}/longterm_standard_discount_factor.csv"
 ):
     """
     Calculate pv whole life benefits (WLB).

@@ -1,0 +1,10 @@
+{
+  "colab": {
+    "input_data_path": "./",
+    "results_path": "./results"
+  },
+  "databricks": {
+    "input_data_path": "/dbfs/mnt/lab/unrestricted/irwell_data",
+    "results_path": "/Workspace/Users/{user}/EA-upper-irwell-tool/results"
+  }
+}
