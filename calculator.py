@@ -17,6 +17,14 @@ def _require_initialised():
         raise RuntimeError("Call calculator.initialise(data_path=...) before using this function.")
 
 
+def _resolve_discount_factors_path(discount_factors_path: str | None) -> str:
+    """Return absolute path to discount factor CSV."""
+    if discount_factors_path:
+        return discount_factors_path
+    _require_initialised()
+    return os.path.join(input_data_path, "longterm_standard_discount_factor.csv")
+    
+
 def calculate_pv_wlb(
     household_risk_changes,
     rofrs_damages_path,
