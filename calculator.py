@@ -1,14 +1,20 @@
+from __future__ import annotations
+import os
 import sys
 import itertools
-
 import numpy as np
 import pandas as pd
 
-input_data_path = None
+input_data_path: str | None = None
 
-def initialise(data_path):
+def initialise(data_path: str):
     global input_data_path
     input_data_path = data_path
+
+
+def _require_initialised():
+    if not input_data_path:
+        raise RuntimeError("Call calculator.initialise(data_path=...) before using this function.")
 
 
 def calculate_pv_wlb(
@@ -16,7 +22,7 @@ def calculate_pv_wlb(
     rofrs_damages_path,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path=f"{input_data_path}/longterm_standard_discount_factor.csv",
+    discount_factors_path: str | None = None,
     rofrs_damages_sheet_name='RoFRS Damages',
 ):
     """
@@ -43,6 +49,11 @@ def calculate_pv_wlb(
         - Still need to check with EA whether this is correct.
     
     """
+    
+    _require_initialised()
+    if discount_factors_path is None:
+        discount_factors_path = os.path.join(input_data_path, "longterm_standard_discount_factor.csv")
+
     discount_factors = pd.read_csv(discount_factors_path)
     rofrs_damages = _get_rofrs_damages(rofrs_damages_path, rofrs_damages_sheet_name)
     
