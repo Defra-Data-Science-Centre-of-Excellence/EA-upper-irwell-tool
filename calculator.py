@@ -50,11 +50,9 @@ def calculate_pv_wlb(
     
     """
     
-    _require_initialised()
-    if discount_factors_path is None:
-        discount_factors_path = os.path.join(input_data_path, "longterm_standard_discount_factor.csv")
-
+    discount_factors_path = _resolve_discount_factors_path(discount_factors_path)
     discount_factors = pd.read_csv(discount_factors_path)
+
     rofrs_damages = _get_rofrs_damages(rofrs_damages_path, rofrs_damages_sheet_name)
     
     risk_categories = [
@@ -127,7 +125,7 @@ def calculate_gia(
     
     # Section 5A
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path=f"{input_data_path}/longterm_standard_discount_factor.csv",
+    discount_factors_path: str | None = None,
     
     # Section 5B
     year_ready_for_service=2028,  # TODO: Check default
@@ -208,6 +206,7 @@ def calculate_gia(
     # ---
     # Read lookup tables
     
+    discount_factors_path = _resolve_discount_factors_path(discount_factors_path)
     discount_factors = pd.read_csv(discount_factors_path)
     
     # ---
@@ -468,7 +467,8 @@ def calculate_pv_wlb__interim(
     num_households_at_risk_after_duration_of_benefits_5a,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path=f"{input_data_path}/longterm_standard_discount_factor.csv"
+    discount_factors_path: str | None = None,
+
 ):
     """
     Calculate pv whole life benefits (WLB).
@@ -491,6 +491,7 @@ def calculate_pv_wlb__interim(
         - Check if/how Section 5B should fit in.
     
     """
+    discount_factors_path = _resolve_discount_factors_path(discount_factors_path)
     discount_factors = pd.read_csv(discount_factors_path)
     
     pv_qual_benefits_20pc_most_deprived_5a, \
