@@ -1,36 +1,16 @@
-from __future__ import annotations
 import os
 import sys
 import itertools
 import numpy as np
 import pandas as pd
 
-input_data_path: str | None = None
-
-def initialise(data_path: str):
-    global input_data_path
-    input_data_path = data_path
-
-
-def _require_initialised():
-    if not input_data_path:
-        raise RuntimeError("Call calculator.initialise(data_path=...) before using this function.")
-
-
-def _resolve_discount_factors_path(discount_factors_path: str | None) -> str:
-    """Return absolute path to discount factor CSV."""
-    if discount_factors_path:
-        return discount_factors_path
-    _require_initialised()
-    return os.path.join(input_data_path, "longterm_standard_discount_factor.csv")
-    
 
 def calculate_pv_wlb(
     household_risk_changes,
     rofrs_damages_path,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path: str | None = None,
+    discount_factors_path,
     rofrs_damages_sheet_name='RoFRS Damages',
 ):
     """
@@ -58,7 +38,6 @@ def calculate_pv_wlb(
     
     """
     
-    discount_factors_path = _resolve_discount_factors_path(discount_factors_path)
     discount_factors = pd.read_csv(discount_factors_path)
 
     rofrs_damages = _get_rofrs_damages(rofrs_damages_path, rofrs_damages_sheet_name)
@@ -133,7 +112,7 @@ def calculate_gia(
     
     # Section 5A
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path: str | None = None,
+    discount_factors_path,
     
     # Section 5B
     year_ready_for_service=2028,  # TODO: Check default
@@ -214,7 +193,6 @@ def calculate_gia(
     # ---
     # Read lookup tables
     
-    discount_factors_path = _resolve_discount_factors_path(discount_factors_path)
     discount_factors = pd.read_csv(discount_factors_path)
     
     # ---
@@ -475,7 +453,7 @@ def calculate_pv_wlb__interim(
     num_households_at_risk_after_duration_of_benefits_5a,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path: str | None = None,
+    discount_factors_path,
 
 ):
     """
@@ -499,7 +477,6 @@ def calculate_pv_wlb__interim(
         - Check if/how Section 5B should fit in.
     
     """
-    discount_factors_path = _resolve_discount_factors_path(discount_factors_path)
     discount_factors = pd.read_csv(discount_factors_path)
     
     pv_qual_benefits_20pc_most_deprived_5a, \
