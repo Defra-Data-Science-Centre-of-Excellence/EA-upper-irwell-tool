@@ -8,9 +8,9 @@ import pandas as pd
 def calculate_pv_wlb(
     household_risk_changes,
     rofrs_damages_path,
+    discount_factors_path,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path,
     rofrs_damages_sheet_name='RoFRS Damages',
 ):
     """
@@ -91,6 +91,7 @@ def calculate_gia(
     # Optional inputs
 
     # Section 1
+    discount_factors_path,
     project_name=None,
     national_project_number=None,
     date_of_PF_calculator=None,
@@ -112,8 +113,7 @@ def calculate_gia(
     
     # Section 5A
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path,
-    
+        
     # Section 5B
     year_ready_for_service=2028,  # TODO: Check default
     # TODO: Check if 5b tables should be mandatory inputs or if they are derived
@@ -449,12 +449,12 @@ def _calculate_8(
 
 
 def calculate_pv_wlb__interim(
+    discount_factors_path,
     num_households_at_risk_today_5a, 
     num_households_at_risk_after_duration_of_benefits_5a,
     duration_of_benefits_DoB_period=50,
     annual_damages_avoided_compared_with_low_risk=np.array([0, 59, 294, 1000, 1589]),
-    discount_factors_path,
-
+    
 ):
     """
     Calculate pv whole life benefits (WLB).
